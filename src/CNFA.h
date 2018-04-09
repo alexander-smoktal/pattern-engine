@@ -18,21 +18,21 @@ public:
 		 const std::shared_ptr<CState> &end_state);
 
 	/**
-	 * @brief match Check if source string matches the pattern coded in NFA
+	 * @brief match Check if the source string matches the pattern coded in NFA
 	 *
 	 * @param source String to match
 	 */
 	bool match(const std::string &source) const;
 
 	/**
-	* @brief count Counts unique pattern matches in a source string (`unique` means they don't overlap)
+	* @brief count Counts unique pattern matches in the source string (`unique` means they don't overlap)
 	*
 	* @param source String to match
 	*/
 	int countGroups(const std::string &source) const;
 
 	/**
-	* @brief count Counts pattern matches in a source string. Returns total amount of matches even if they overlap.
+	* @brief count Counts pattern matches in the source string. Returns total amount of matches which may overlap.
 	*
 	* @param source String to match
 	*/
@@ -55,12 +55,12 @@ public:
 	}
 
 	/**
-	* @brief endState Start state accessor
+	* @brief finalState Final state accessor
 	*
 	* @return End state
 	*/
-	std::shared_ptr<CState> endState() {
-		return _end_state;
+	std::shared_ptr<CState> finalState() {
+		return _final_state;
 	}
 private:
 	/**
@@ -73,8 +73,8 @@ private:
 		                 std::unordered_set<std::shared_ptr<CState>> &state_set);
 
 	/**
-	* @brief addMultistate Utility function. Add the state to the state vector. Doesn't check if state is already added. This allows
-	*        to count intersecting matches.
+	* @brief addMultistate Utility function. Add the state to the state vector. Doesn't check if the state is already added.
+	*        This allows to count intersecting matches.
 	*
 	* @param state State to add
 	* @param state_vector Vector to add to
@@ -82,7 +82,7 @@ private:
 	static void addMultistate(const std::shared_ptr<CState> &state,
 						      std::vector<std::shared_ptr<CState>> &state_vector);
 private:
-	std::shared_ptr<CState> _start_state;
-	std::shared_ptr<CState> _end_state;
+	std::shared_ptr<CState> _start_state; ///< NFA start state
+	std::shared_ptr<CState> _final_state; ///< NFA final state
 };
 

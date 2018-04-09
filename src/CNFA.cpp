@@ -2,8 +2,8 @@
 
 CNFA::CNFA(const std::shared_ptr<CState> &start_state, const std::shared_ptr<CState> &end_state)
 	: _start_state(start_state)
-	, _end_state(end_state) {
-	_end_state->setIsFinalState(true);
+	, _final_state(end_state) {
+	_final_state->setIsFinalState(true);
 }
 
 void CNFA::addState(const std::shared_ptr<CState> &state, std::unordered_set<std::shared_ptr<CState>> &state_set) {
@@ -38,7 +38,7 @@ bool CNFA::match(const std::string &source) const {
 	for (const auto &character : source) {
 		std::unordered_set<std::shared_ptr<CState>> next_states;
 
-		// For each state check if it accepts the character. If so, move transition for the character into intermediate states
+		// For each state check if it accepts the character. If so, move transition for the character into the intermediate states
 		for (const auto &state : current_states) {
 			if (state->transitions().count(character)) {
 				auto transition_state = state->transitions().at(character);
@@ -76,7 +76,7 @@ int CNFA::countGroups(const std::string &source) const {
 		addState(_start_state, current_states);
 		std::unordered_set<std::shared_ptr<CState>> next_states;
 
-		// For each state check if it accepts the character. If so, move transition for the character into intermediate states
+		// For each state check if it accepts the character. If so, move transition for the character into the intermediate states
 		for (const auto &state : current_states) {
 			if (state->transitions().count(character)) {
 				auto transition_state = state->transitions().at(character);
@@ -108,11 +108,12 @@ int CNFA::count(const std::string &source) const {
 
 	for (const auto &character : source) {
 		// The function itself is very similar to the match function. The differences are that we add own start state
-		// for each characetter to see if we may start matching here. Also we check for finite states during iteration
+		// for each characetter to see if we may start matching here. Also we check for finite states during iteration.
+		// Note: we use multistates here to search for overlapping matches.
 		addMultistate(_start_state, current_states);
 		std::vector<std::shared_ptr<CState>> next_states;
 
-		// For each state check if it accepts the character. If so, move transition for the character into intermediate states
+		// For each state check if it accepts the character. If so, move transition for the character into the intermediate states
 		for (const auto &state : current_states) {
 			if (state->transitions().count(character)) {
 				auto transition_state = state->transitions().at(character);

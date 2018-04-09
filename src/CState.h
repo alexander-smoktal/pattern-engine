@@ -41,7 +41,7 @@ public:
 	 * @brief addTransition Add transition from state for the character
 	 *
 	 * @param character Character for transition
-	 * @param state State to transit to
+	 * @param state State to transit into
 	 */
 	void addTransition(const char character, std::shared_ptr<CState> state);
 
@@ -52,7 +52,7 @@ public:
 	/**
 	 * @brief addEpsilonTransition Add epsilon transition
 	 *
-	 * @param state State to transit to
+	 * @param state State to transit into
 	 */
 	void addEpsilonTransition(std::shared_ptr<CState> state);
 
@@ -64,7 +64,7 @@ public:
 	* @brief toString Stringifies the state for debug purposes
 	*
 	* @param visited A set of already printed states. If the state is in the set it just returns own name,
-	*        otherwise it prints all transitions, epsilons and if end state
+	*        otherwise prints all transitions, epsilons and final state flag
 	*
 	* @return Stringified state
 	*/

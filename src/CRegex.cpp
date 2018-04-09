@@ -9,16 +9,16 @@ CNFA CRegex::compile(std::string regex) {
 	}
 
 	auto begin = regex.begin();
-	return compile_iter(begin, regex.end());
+	return compileIter(begin, regex.end());
 }
 
-CNFA CRegex::compile_iter(std::string::iterator &begin, const std::string::iterator &end) {
+CNFA CRegex::compileIter(std::string::iterator &begin, const std::string::iterator &end) {
 	std::stack<CNFA> parse_stack;
 
 	for (; begin != end && *begin != ')'; ++begin) {
 
 		if (*begin == '(') {
-			auto group_nfa = compile_iter(++begin, end); // Parse group
+			auto group_nfa = compileIter(++begin, end); // Parse group
 
 			if (begin == end || *begin != ')') {
 				throw std::invalid_argument("Unclosed parentheses");
@@ -27,7 +27,7 @@ CNFA CRegex::compile_iter(std::string::iterator &begin, const std::string::itera
 			parse_stack.push(group_nfa);
 		}
 		else if (*begin == '|') {
-			auto alt_nfa = compile_iter(++begin, end); // Parse right alternative group
+			auto alt_nfa = compileIter(++begin, end); // Parse right alternative group
 
 			parse_stack.push(alt_nfa);
 
@@ -47,7 +47,8 @@ CNFA CRegex::compile_iter(std::string::iterator &begin, const std::string::itera
 			handleChar(*begin, parse_stack);
 		}
 
-		// In case we haven't finished and next pattern is a special operator, we don't concatenate patterns on top so operator could wrap it
+		// In case we haven't finished and next pattern is a special operator, we don't 
+		// concatenate patterns on top so operator could wrap it.
 		if (parse_stack.size() > 1) {
 			auto next = begin + 1;
 
@@ -66,9 +67,7 @@ CNFA CRegex::compile_iter(std::string::iterator &begin, const std::string::itera
 }
 
 std::shared_ptr<CState> CRegex::makeState() {
-	++_state_count;
-
-	return std::make_shared<CState>(std::string("S: ") + std::to_string(_state_count));
+	return std::make_shared<CState>(std::string("S: ") + std::to_string(++_state_count));
 }
 
 void CRegex::concat(std::stack<CNFA> &nfas) {
@@ -77,9 +76,9 @@ void CRegex::concat(std::stack<CNFA> &nfas) {
 	CNFA prev = nfas.top();
 	nfas.pop();
 
-	prev.endState()->addEpsilonTransition(next.startState());
+	prev.finalState()->addEpsilonTransition(next.startState());
 
-	nfas.push(CNFA(prev.startState(), next.endState()));
+	nfas.push(CNFA(prev.startState(), next.finalState()));
 }
 
 void CRegex::handleChar(char character, std::stack<CNFA> &nfas) {
@@ -97,11 +96,11 @@ void CRegex::handleAlt(std::stack<CNFA> &nfas) {
 
 	CNFA alt1 = nfas.top();
 	nfas.pop();
-	alt1.endState()->addEpsilonTransition(final_state);
+	alt1.finalState()->addEpsilonTransition(final_state);
 
 	CNFA alt2 = nfas.top();
 	nfas.pop();
-	alt2.endState()->addEpsilonTransition(final_state);
+	alt2.finalState()->addEpsilonTransition(final_state);
 
 	start_state->addEpsilonTransition(alt1.startState());
 	start_state->addEpsilonTransition(alt2.startState());
@@ -121,8 +120,8 @@ void CRegex::handleRep(bool at_least_once, std::stack<CNFA> &nfas) {
 		s0->addEpsilonTransition(s1);
 	}
 
-	underlying_patt.endState()->addEpsilonTransition(s1);
-	underlying_patt.endState()->addEpsilonTransition(underlying_patt.startState());
+	underlying_patt.finalState()->addEpsilonTransition(s1);
+	underlying_patt.finalState()->addEpsilonTransition(underlying_patt.startState());
 
 	nfas.push(CNFA(s0, s1));
 }
@@ -130,5 +129,5 @@ void CRegex::handleRep(bool at_least_once, std::stack<CNFA> &nfas) {
 void CRegex::handleQmark(std::stack<CNFA> &nfas) {
 	auto underlying_patt = nfas.top();
 
-	underlying_patt.startState()->addEpsilonTransition(underlying_patt.endState());
+	underlying_patt.startState()->addEpsilonTransition(underlying_patt.finalState());
 }
