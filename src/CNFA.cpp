@@ -6,6 +6,14 @@ CNFA::CNFA(const std::shared_ptr<CState> &start_state, const std::shared_ptr<CSt
 	_final_state->setIsFinalState(true);
 }
 
+CNFA::~CNFA() {
+	// NFA start state is the only entry point for the NFA graph. If we are going to 
+	// destroy entry state, we resolve graph cyclic dependency first.
+	if (_start_state.use_count() == 1) {
+		_start_state->deinit();
+	}
+}
+
 void CNFA::addState(const std::shared_ptr<CState> &state, std::unordered_set<std::shared_ptr<CState>> &state_set) {
 	if (state_set.count(state)) {
 		return;
@@ -81,11 +89,18 @@ int CNFA::countGroups(const std::string &source) const {
 			if (state->transitions().count(character)) {
 				auto transition_state = state->transitions().at(character);
 
-				addState(transition_state, next_states);
-
-				// Here we check if we get final state, which means we got a match
+				// Here we check if we get final state, which means we got a match.
+				// Here we reset states to initial to start new group matching
 				if (transition_state->isFinalState()) {
 					++result;
+
+					next_states.clear();
+					next_states.insert(_start_state);
+
+					break;
+				}
+				else {
+					addState(transition_state, next_states);
 				}
 			}
 		}
@@ -134,6 +149,6 @@ int CNFA::count(const std::string &source) const {
 }
 
 std::string CNFA::toString() const {
-	std::unordered_set<std::string> set;
+	std::unordered_set<size_t> set;
 	return _start_state->toString(set);
 }

@@ -8,4 +8,4 @@ Supports:
 - alternatives: `|`
 - characters (no character sets)
 
-The project is for demo purposes only. Take a look at `Main.cpp` for usage.
+Take a look at `Main.cpp` for usage.

@@ -67,7 +67,7 @@ CNFA CRegex::compileIter(std::string::iterator &begin, const std::string::iterat
 }
 
 std::shared_ptr<CState> CRegex::makeState() {
-	return std::make_shared<CState>(std::string("S: ") + std::to_string(++_state_count));
+	return std::make_shared<CState>(++_state_count);
 }
 
 void CRegex::concat(std::stack<CNFA> &nfas) {

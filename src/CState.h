@@ -25,14 +25,34 @@ public:
 	/**
 	 * @brief CState Constructor
 	 *
-	 * @param name State name. For debug purposes
+	 * @param id State ID. For debug purposes
 	 */
-	CState(std::string name);
+	CState(size_t id);
 
+	/**
+	 * @brief deinit Resolve cyclic dependencies before destroy. NFA is a cyclic graph. We
+	 *        have 2 alternative ways to break cyclic dependencies of shared pointers:
+	 *          - Have weak pointers for some transitions. In this case we'd need to keep 2 more collections inside;
+	 *          - Use raw pointers, which would be less error-prone.
+	 *        It seems both cases are worse than calling a single function before NFA destroys its graph.
+	 *        The idea it to reset shared pointers if referenced state has id less than current.
+	 */
+	void deinit();
+
+	/**
+	 * @brief isFinalState Check if the is a final state
+	 *
+	 * @return If final state
+	 */
 	bool isFinalState() const {
 		return _is_final_state;
 	}
 
+	/**
+	* @brief setIsFinalState Set if the is a final state
+	*
+	* @param is_final If final state
+	*/
 	void setIsFinalState(bool is_final) {
 		_is_final_state = is_final;
 	}
@@ -45,6 +65,9 @@ public:
 	 */
 	void addTransition(const char character, std::shared_ptr<CState> state);
 
+	/**
+	 * @brief transitions Get state transitions
+	 */
 	const TransitionsType transitions() const {
 		return _transitions;
 	}
@@ -56,6 +79,9 @@ public:
 	 */
 	void addEpsilonTransition(std::shared_ptr<CState> state);
 
+	/**
+	* @brief transitions Get state epsilon transitions
+	*/
 	const EpsilonTransitionsType epsilonTransitions() const {
 		return _epsilons;
 	}
@@ -68,12 +94,12 @@ public:
 	*
 	* @return Stringified state
 	*/
-	std::string toString(std::unordered_set<std::string> &visited);
+	std::string toString(std::unordered_set<std::size_t> &visited);
 
 private:
 	EpsilonTransitionsType _epsilons;       ///< State Epsilon transitions
 	TransitionsType        _transitions;    ///< State transitions
-	std::string            _name;           ///< State name
+	size_t                 _id;             ///< State ID
 	bool                   _is_final_state; ///< If state is a final state
 };
 

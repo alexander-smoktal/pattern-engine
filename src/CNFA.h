@@ -18,6 +18,11 @@ public:
 		 const std::shared_ptr<CState> &end_state);
 
 	/**
+	* @brief ~CNFA Destructor. Breaks circular dependency graph if the only owner of start state
+	*/
+	~CNFA();
+
+	/**
 	 * @brief match Check if the source string matches the pattern coded in NFA
 	 *
 	 * @param source String to match
@@ -82,7 +87,7 @@ private:
 	static void addMultistate(const std::shared_ptr<CState> &state,
 						      std::vector<std::shared_ptr<CState>> &state_vector);
 private:
-	std::shared_ptr<CState> _start_state; ///< NFA start state
-	std::shared_ptr<CState> _final_state; ///< NFA final state
+	std::shared_ptr<CState> _start_state;   ///< NFA start state
+	std::shared_ptr<CState> _final_state;   ///< NFA final state
 };
 
