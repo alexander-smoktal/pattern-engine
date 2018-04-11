@@ -8,13 +8,16 @@ CState::CState(size_t id)
 
 void CState::deinit() {
 	for (auto &eps : _epsilons) {
-		if (eps->_id < _id) {
+		if (eps->_id <= _id) {
 			eps.reset();
+		}
+		else {
+			eps->deinit();
 		}
 	}
 
 	for (auto &transitions : _transitions) {
-		if (transitions.second->_id < _id) {
+		if (transitions.second->_id <= _id) {
 			transitions.second.reset();
 		}
 	}
